@@ -6,73 +6,7 @@
 //
 
 import SwiftUI
-import Clerk
-
-struct SigninView: View {
-    @State private var email = ""
-    @State private var password = ""
-    
-    var body: some View {
-        VStack {
-            Text("Sign In")
-            TextField("Email", text: $email)
-            SecureField("Password", text: $password)
-            Button("Continue") {
-                //Task { await submit(email: email, password: password) }
-            }
-        }
-        .padding()
-    }
-}
-
-extension SignInView {
-    
-    func submit(email: String, password: String) async {
-        do {
-            isSigningIn = true
-            try await SignIn.create(
-                strategy: .identifier(email, password: password)
-            )
-            await subscriptionStore.syncWithDatabase()
-            isSigningIn = false
-        } catch {
-            dump(error)
-            isSigningIn = false
-        }
-    }
-    
-    func submitWithApple() async {
-        do {
-            isSigningIn = true
-            // Use the Clerk SignInWithAppleHelper class to get your Apple credential
-            let credential = try await SignInWithAppleHelper.getAppleIdCredential()
-            
-            // Convert the identityToken data to String format
-            guard let idToken = credential.identityToken.flatMap({ String(data: $0, encoding: .utf8) }) else { return }
-            
-            // Authenticate with Clerk
-            try await SignIn.authenticateWithIdToken(provider: .apple, idToken: idToken)
-            await subscriptionStore.syncWithDatabase()
-            isSigningIn = false
-        } catch {
-            dump(error)
-            isSigningIn = false
-        }
-    }
-    
-    func submitWithGoogle() async {
-        do {
-            isSigningIn = true
-            try await SignIn.authenticateWithRedirect(strategy: .oauth(provider: .google))
-            await subscriptionStore.syncWithDatabase()
-            isSigningIn = false
-        } catch {
-            dump(error)
-            isSigningIn = false
-        }
-    }
-
-}
+import Supabase
 
 struct SignInView: View {
     @Binding var isSignUp: Bool
@@ -82,6 +16,18 @@ struct SignInView: View {
     @State private var password = ""
     @State private var isPasswordVisible = false
     @State private var isSigningIn = false
+    
+    func submit(email: String, password: String) async {
+        do {
+            isSigningIn = true
+            try await supabase.auth.signIn(email: email, password: password)
+            await subscriptionStore.syncWithDatabase()
+            isSigningIn = false
+        } catch {
+            dump(error)
+            isSigningIn = false
+        }
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -238,7 +184,6 @@ struct SignInView: View {
     // MARK: - Signup Button View
     private var signinButtonView: some View {
         Button(action: {
-            //handleSignup()
             Task { await submit(email: email, password: password) }
         }) {
             HStack {
@@ -267,49 +212,49 @@ struct SignInView: View {
     private var socialMediaButtonView: some View {
         VStack(spacing: 16) {
                     // Apple/Social Media Accounts Button
-                    Button(action: {
-                        // Handle Apple signin
-                        Task { await submitWithApple() }
-                    }) {
-                        HStack(spacing: 12) {
-                            Image(systemName: "applelogo")
-                                .font(.system(size: 16))
-                                .foregroundColor(.white)
-                            
-                            Text("Sign in with Apple")
-                                .font(.system(size: 16))
-                                .foregroundColor(.white)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.gray.opacity(0.4))
-                        )
-                    }
+//                    Button(action: {
+//                        // Handle Apple signin
+//                        Task { await submitWithApple() }
+//                    }) {
+//                        HStack(spacing: 12) {
+//                            Image(systemName: "applelogo")
+//                                .font(.system(size: 16))
+//                                .foregroundColor(.white)
+//
+//                            Text("Sign in with Apple")
+//                                .font(.system(size: 16))
+//                                .foregroundColor(.white)
+//                        }
+//                        .frame(maxWidth: .infinity)
+//                        .frame(height: 56)
+//                        .background(
+//                            RoundedRectangle(cornerRadius: 12)
+//                                .fill(Color.gray.opacity(0.4))
+//                        )
+//                    }
                     
                     // Google Sign In Button
-                    Button(action: {
-                        // Handle Google sign in
-                        Task { await submitWithGoogle() }
-                    }) {
-                        HStack(spacing: 12) {
-                            // Google logo placeholder using SF Symbol
-                            Image(systemName: "globe")
-                                .font(.system(size: 16))
-                                .foregroundColor(.white)
-                            
-                            Text("Sign in with Google")
-                                .font(.system(size: 16))
-                                .foregroundColor(.white)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.gray.opacity(0.4))
-                        )
-                    }
+//                    Button(action: {
+//                        // Handle Google sign in
+//                        Task { await submitWithGoogle() }
+//                    }) {
+//                        HStack(spacing: 12) {
+//                            // Google logo placeholder using SF Symbol
+//                            Image(systemName: "globe")
+//                                .font(.system(size: 16))
+//                                .foregroundColor(.white)
+//
+//                            Text("Sign in with Google")
+//                                .font(.system(size: 16))
+//                                .foregroundColor(.white)
+//                        }
+//                        .frame(maxWidth: .infinity)
+//                        .frame(height: 56)
+//                        .background(
+//                            RoundedRectangle(cornerRadius: 12)
+//                                .fill(Color.gray.opacity(0.4))
+//                        )
+//                    }
                 }
     }
     

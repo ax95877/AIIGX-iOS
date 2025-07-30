@@ -6,76 +6,27 @@
 //
 
 import SwiftUI
-import Clerk
-
-struct SignupView: View {
-  @State private var email = ""
-  @State private var password = ""
-  @State private var code = ""
-  @State private var isVerifying = false
-
-  var body: some View {
-    VStack {
-      Text("Sign Up")
-      if isVerifying {
-        TextField("Code", text: $code)
-        Button("Verify") {
-          Task { await verify(code: code) }
-        }
-      } else {
-        TextField("Email", text: $email)
-        SecureField("Password", text: $password)
-        Button("Continue") {
-          Task { await signUp(email: email, password: password) }
-        }
-      }
-    }
-    .padding()
-  }
-}
-
-extension SignupView {
-
-  func signUp(email: String, password: String) async {
-    do {
-      let signUp = try await SignUp.create(
-        strategy: .standard(emailAddress: email, password: password)
-      )
-
-      try await signUp.prepareVerification(strategy: .emailCode)
-
-      isVerifying = true
-    } catch {
-      dump(error)
-    }
-  }
-
-  func verify(code: String) async {
-    do {
-      guard let signUp = Clerk.shared.client?.signUp else {
-        isVerifying = false
-        return
-      }
-
-      try await signUp.attemptVerification(strategy: .emailCode(code: code))
-    } catch {
-      dump(error)
-    }
-  }
-
-}
+import Supabase
 
 struct SignUpView: View {
     @Binding var isSignUp: Bool
     @EnvironmentObject private var subscriptionStore: SubscriptionStore
     
     @State private var email = ""
-    @State private var code = ""
-    @State private var isVerifying = false
-    @State private var isVerifyForm = false
     @State private var password = ""
     @State private var isPasswordVisible = false
     @State private var isSigningUp = false
+    
+    func signUp(email: String, password: String) async {
+        do {
+          isSigningUp = true
+          try await supabase.auth.signUp(email: email, password: password)
+          isSigningUp = false
+        } catch {
+          isSigningUp = false
+          dump(error)
+        }
+      }
     
     var body: some View {
         GeometryReader { geometry in
@@ -94,12 +45,7 @@ struct SignUpView: View {
                     VStack(spacing: 32) {
                         headerView
                         formFieldsView
-                        if isVerifyForm  {
-                            verifyButtonView
-                        }else{
-                            signupButtonView
-                        }
-                        
+                        signupButtonView
                         dividerView
                         socialMediaButtonView
                         footerView
@@ -183,45 +129,35 @@ struct SignUpView: View {
     // MARK: - Form Fields View
     private var formFieldsView: some View {
         VStack(spacing: 24) {
-            if isVerifyForm  {
-                // Code
+            // Email Field
+            CustomTextField(
+                text: $email,
+                placeholder: "Email",
+                isSecure: false
+            )
+            
+            
+            // Password Field
+            HStack {
                 CustomTextField(
-                    text: $code,
-                    placeholder: "Code",
-                    isSecure: false
+                    text: $password,
+                    placeholder: "Password",
+                    isSecure: !isPasswordVisible
                 )
                 
-            }else {
-                // Email Field
-                CustomTextField(
-                    text: $email,
-                    placeholder: "Email",
-                    isSecure: false
-                )
-                
-                
-                // Password Field
-                HStack {
-                    CustomTextField(
-                        text: $password,
-                        placeholder: "Password",
-                        isSecure: !isPasswordVisible
-                    )
-                    
-                    Button(action: {
-                        isPasswordVisible.toggle()
-                    }) {
-                        Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
-                            .foregroundColor(.white.opacity(0.5))
-                            .frame(width: 20, height: 20)
-                    }
-                    .padding(.trailing, 16)
+                Button(action: {
+                    isPasswordVisible.toggle()
+                }) {
+                    Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
+                        .foregroundColor(.white.opacity(0.5))
+                        .frame(width: 20, height: 20)
                 }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                )
+                .padding(.trailing, 16)
             }
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+            )
         }
     }
     
@@ -238,32 +174,6 @@ struct SignUpView: View {
                         .scaleEffect(0.8)
                 } else {
                     Text("Sign Up")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.black)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 56)
-            .background(Color.white)
-            .cornerRadius(16)
-        }
-        .disabled(isSigningUp)
-        .scaleEffect(isSigningUp ? 0.95 : 1.0)
-        .animation(.easeInOut(duration: 0.1), value: isSigningUp)
-    }
-    
-    // MARK: - Signup Button View
-    private var verifyButtonView: some View {
-        Button(action: {
-            Task { await verify(code: code) }
-        }) {
-            HStack {
-                if isSigningUp {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .black))
-                        .scaleEffect(0.8)
-                } else {
-                    Text("Verify")
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.black)
                 }
@@ -298,28 +208,7 @@ struct SignUpView: View {
     
     // MARK: - Social Media Button View
     private var socialMediaButtonView: some View {
-        Button(action: {
-            // Handle social media signup
-        }) {
-            HStack(spacing: 12) {
-                Image(systemName: "applelogo")
-                    .font(.system(size: 16))
-                    .foregroundColor(.white)
-                
-                Text("Social Media Accounts")
-                    .font(.system(size: 16))
-                    .foregroundColor(.white)
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 56)
-            .background(Color.white.opacity(0.1))
-            .background(.ultraThinMaterial)
-            .cornerRadius(16)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
-            )
-        }
+        VStack {}
     }
     
     // MARK: - Footer View
@@ -350,40 +239,6 @@ struct SignUpView: View {
     }
 }
 
-extension SignUpView {
-
-  func signUp(email: String, password: String) async {
-    do {
-      isSigningUp = true
-      let signUp = try await SignUp.create(
-        strategy: .standard(emailAddress: email, password: password)
-      )
-
-      try await signUp.prepareVerification(strategy: .emailCode)
-
-      isSigningUp = false
-      isVerifyForm = true
-    } catch {
-      isSigningUp = false
-      dump(error)
-    }
-  }
-
-  func verify(code: String) async {
-    do {
-      guard let signUp = Clerk.shared.client?.signUp else {
-        isVerifying = false
-        return
-      }
-
-      try await signUp.attemptVerification(strategy: .emailCode(code: code))
-      await subscriptionStore.syncWithDatabase()
-    } catch {
-      dump(error)
-    }
-  }
-
-}
 // MARK: - Custom TextField
 struct CustomTextField: View {
     @Binding var text: String

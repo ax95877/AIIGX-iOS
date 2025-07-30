@@ -1,6 +1,6 @@
 import Foundation
 import Supabase
-import Clerk
+
 
 @MainActor
 class SubscriptionStore: ObservableObject {
@@ -22,10 +22,7 @@ class SubscriptionStore: ObservableObject {
         usageCount += 1
         // Update usage in the database
         do {
-            guard let userId = Clerk.shared.user?.id else {
-                print("User not authenticated")
-                return
-            }
+            let user = try await supabase.auth.user()
             
             let formatter = ISO8601DateFormatter()
             formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -33,7 +30,7 @@ class SubscriptionStore: ObservableObject {
             try await supabase.database
                 .from("user_subscription")
                 .update(["current_usage": "\(usageCount)", "updated_at": formatter.string(from: Date())])
-                .eq("clerk_user_id", value: userId)
+                .eq("user_id", value: user.id)
                 .execute()
         } catch {
             print("Failed to update usage in database: \(error)")
@@ -61,18 +58,16 @@ class SubscriptionStore: ObservableObject {
     }
 
     func syncWithDatabase() async {
-        guard let userId = Clerk.shared.user?.id, let userEmail = Clerk.shared.user?.primaryEmailAddress else {
-            print("User not authenticated for syncing subscription")
-            return
-        }
-
-        print("Syncing subscription for email: \(userEmail)")
-
         do {
+            let user = try await supabase.auth.user()
+            let userEmail = user.email
+            
+            print("Syncing subscription for email: \(userEmail ?? "No Email")")
+            
             let userSubscription: UserSubscription = try await supabase.database
                 .from("user_subscription")
                 .select()
-                .eq("email", value: userEmail.emailAddress)
+                .eq("email", value: userEmail)
                 .single()
                 .execute()
                 .value
@@ -105,15 +100,11 @@ class SubscriptionStore: ObservableObject {
         self.isLoading = true
         defer { self.isLoading = false }
         
-        guard let token = try? await Clerk.shared.session?.getToken() else {
-            print("User not authenticated for checking subscription")
-            return
-        }
-
         do {
+            let session = try await supabase.auth.session
             let response: CheckSubscriptionResponse = try await supabase.functions.invoke(
                 "check-subscription",
-                 options: .init(headers: ["Authorization": "Bearer \(token)"])
+                 options: .init(headers: ["Authorization": "Bearer \(session.accessToken)"])
             )
             
             if response.subscribed, let tier = response.subscription_tier, let plan = SUBSCRIPTION_PLANS.first(where: { $0.name == tier }) {
@@ -135,15 +126,13 @@ class SubscriptionStore: ObservableObject {
     }
 
     func createCheckoutSession(priceId: String, planName: String) async throws -> CreateCheckoutResponse {
-        guard let token = try? await Clerk.shared.session?.getToken() else {
-            throw URLError(.userAuthenticationRequired)
-        }
+        let session = try await supabase.auth.session
         
         let body = CreateCheckoutRequest(priceId: priceId, planName: planName)
         let response: CreateCheckoutResponse = try await supabase.functions.invoke(
             "create-checkout",
             options: .init(
-                headers: ["Authorization": "Bearer \(token)"],
+                headers: ["Authorization": "Bearer \(session.accessToken)"],
                 body: body
             )
         )
@@ -151,15 +140,13 @@ class SubscriptionStore: ObservableObject {
     }
     
     func createPaymentIntent(priceId: String, planName: String, amount: Double) async throws -> CreatePaymentIntentResponse {
-        guard let token = try? await Clerk.shared.session?.getToken() else {
-            throw URLError(.userAuthenticationRequired)
-        }
+        let session = try await supabase.auth.session
         
         let body = CreatePaymentIntentRequest(priceId: priceId, planName: planName, amount: amount)
         let response: CreatePaymentIntentResponse = try await supabase.functions.invoke(
             "create-payment-intent",
             options: .init(
-                headers: ["Authorization": "Bearer \(token)"],
+                headers: ["Authorization": "Bearer \(session.accessToken)"],
                 body: body
             )
         )
@@ -167,15 +154,13 @@ class SubscriptionStore: ObservableObject {
     }
     
     func createSubscription(priceId: String, planName: String) async throws -> CreateSubscriptionIntentResponse {
-        guard let token = try? await Clerk.shared.session?.getToken() else {
-            throw URLError(.userAuthenticationRequired)
-        }
+        let session = try await supabase.auth.session
         
         let body = CreateSubscriptionIntentRequest(priceId: priceId, planName: planName)
         let response: CreateSubscriptionIntentResponse = try await supabase.functions.invoke(
             "create-subscription",
             options: .init(
-                headers: ["Authorization": "Bearer \(token)"],
+                headers: ["Authorization": "Bearer \(session.accessToken)"],
                 body: body
             )
         )
@@ -183,13 +168,11 @@ class SubscriptionStore: ObservableObject {
     }
 
     func openCustomerPortal() async throws -> String {
-        guard let token = try? await Clerk.shared.session?.getToken() else {
-            throw URLError(.userAuthenticationRequired)
-        }
+        let session = try await supabase.auth.session
         
         let response: CustomerPortalResponse = try await supabase.functions.invoke(
             "customer-portal",
-            options: .init(headers: ["Authorization": "Bearer \(token)"])
+            options: .init(headers: ["Authorization": "Bearer \(session.accessToken)"])
         )
         return response.url
     }

@@ -1,9 +1,8 @@
 import SwiftUI
-import Clerk
 
 struct TopNavbar: View {
     @State private var isDrawerOpen = false
-    @Environment(Clerk.self) private var clerk
+    var signOut: () -> Void
     
     var body: some View {
         NavigationView {
@@ -34,11 +33,7 @@ struct TopNavbar: View {
                             Button("Update User Profile", action: {
                                 // Action for updating user profile
                             })
-                            Button("Sign Out", action: {
-                                Task {
-                                    try await clerk.signOut()
-                                }
-                            })
+                            Button("Sign Out", action: signOut)
                         } label: {
                             Image(systemName: "person.crop.circle")
                                 .font(.title)
@@ -87,6 +82,6 @@ struct TopNavbar: View {
 
 struct TopNavbar_Previews: PreviewProvider {
     static var previews: some View {
-        TopNavbar()
+        TopNavbar(signOut: {})
     }
 }

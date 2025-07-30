@@ -1,6 +1,6 @@
 import SwiftUI
 import PhotosUI
-import Clerk
+
 
 struct ImageGeneratorView: View {
     @State private var selectedTab = 0
@@ -31,7 +31,6 @@ struct ImageGeneratorView: View {
     @State private var uploadedImageData: Data?
     @State private var showCheckout = false
     
-    @Environment(Clerk.self) private var clerk
     @EnvironmentObject private var subscriptionStore: SubscriptionStore
     
     var body: some View {
@@ -306,11 +305,6 @@ struct ImageGeneratorView: View {
     
     func generateImage() {
         Task {
-            guard let token = try? await clerk.session?.getToken() else {
-                print("Not authenticated")
-                return
-            }
-            
             isGenerating = true
             defer { isGenerating = false }
             
@@ -350,10 +344,11 @@ struct ImageGeneratorView: View {
             )
             
             do {
+                let session = try await supabase.auth.session
                 let result: GenerateImageResponse = try await supabase.functions
                     .invoke("generate-image",
                             options: .init(
-                                headers: ["Authorization": "Bearer \(token)"],
+                                headers: ["Authorization": "Bearer \(session.accessToken)"],
                                 body: requestBody
                             )
                     )
@@ -367,8 +362,8 @@ struct ImageGeneratorView: View {
     
     func editImage() {
         Task {
-            guard let token = try? await clerk.session?.getToken(), let imageData = uploadedImageData else {
-                print("Not authenticated or no image data")
+            guard let imageData = uploadedImageData else {
+                print("No image data")
                 return
             }
             
@@ -386,10 +381,11 @@ struct ImageGeneratorView: View {
             )
             
             do {
+                let session = try await supabase.auth.session
                 let result: GenerateImageResponse = try await supabase.functions
                     .invoke("generate-image",
                             options: .init(
-                                headers: ["Authorization": "Bearer \(token)"],
+                                headers: ["Authorization": "Bearer \(session.accessToken)"],
                                 body: requestBody
                             )
                     )
@@ -536,7 +532,6 @@ let qualityArtOptions: [QualityOption] = [.none, .init(value: "professional", la
 struct ImageGeneratorView_Previews: PreviewProvider {
     static var previews: some View {
         ImageGeneratorView()
-            .environment(Clerk.shared)
             .environmentObject(SubscriptionStore())
     }
 }

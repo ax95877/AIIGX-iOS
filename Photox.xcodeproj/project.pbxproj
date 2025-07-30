@@ -16,7 +16,6 @@
 		040E07EC2E35822700D45B05 /* StripePaymentSheet in Frameworks */ = {isa = PBXBuildFile; productRef = 040E07EB2E35822700D45B05 /* StripePaymentSheet */; };
 		040E07EE2E35822700D45B05 /* StripePaymentsUI in Frameworks */ = {isa = PBXBuildFile; productRef = 040E07ED2E35822700D45B05 /* StripePaymentsUI */; };
 		0447C3BE2E3418F100B58EC8 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 0447C3BD2E3418F100B58EC8 /* Supabase */; };
-		04D44F042E0848EB0085F127 /* Clerk in Frameworks */ = {isa = PBXBuildFile; productRef = 04D44F032E0848EB0085F127 /* Clerk */; };
 		04F29B292E34114100C5642F /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 04F29B282E34114100C5642F /* Auth */; };
 		04F29B2B2E34114100C5642F /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = 04F29B2A2E34114100C5642F /* Functions */; };
 		04F29B2D2E34114100C5642F /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 04F29B2C2E34114100C5642F /* PostgREST */; };
@@ -55,7 +54,6 @@
 				04F29B2F2E34114100C5642F /* Realtime in Frameworks */,
 				040E07E42E35821A00D45B05 /* StripeCardScan in Frameworks */,
 				040E07EA2E35822700D45B05 /* StripePayments in Frameworks */,
-				04D44F042E0848EB0085F127 /* Clerk in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -106,7 +104,6 @@
 			);
 			name = Photox;
 			packageProductDependencies = (
-				04D44F032E0848EB0085F127 /* Clerk */,
 				04F29B282E34114100C5642F /* Auth */,
 				04F29B2A2E34114100C5642F /* Functions */,
 				04F29B2C2E34114100C5642F /* PostgREST */,
@@ -151,7 +148,6 @@
 			mainGroup = 04D44EEA2E0848A20085F127;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				04D44F022E0848EB0085F127 /* XCRemoteSwiftPackageReference "clerk-ios" */,
 				04F29B272E34114100C5642F /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				040E07DE2E35821A00D45B05 /* XCRemoteSwiftPackageReference "stripe-ios-spm" */,
 			);
@@ -305,7 +301,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Photox/ClerkiOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 233WA8LL5N;
@@ -343,7 +338,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Photox/ClerkiOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 233WA8LL5N;
@@ -408,14 +402,6 @@
 				version = 24.7.0;
 			};
 		};
-		04D44F022E0848EB0085F127 /* XCRemoteSwiftPackageReference "clerk-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/clerk/clerk-ios";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.58.0;
-			};
-		};
 		04F29B272E34114100C5642F /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/supabase/supabase-swift";
@@ -471,11 +457,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 04F29B272E34114100C5642F /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Supabase;
-		};
-		04D44F032E0848EB0085F127 /* Clerk */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 04D44F022E0848EB0085F127 /* XCRemoteSwiftPackageReference "clerk-ios" */;
-			productName = Clerk;
 		};
 		04F29B282E34114100C5642F /* Auth */ = {
 			isa = XCSwiftPackageProductDependency;

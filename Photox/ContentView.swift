@@ -6,26 +6,38 @@
 //
 
 import SwiftUI
-import Clerk
 import Supabase
-import Auth
 
 struct ContentView: View {
-  @Environment(Clerk.self) private var clerk
+  @State var session: Session?
   @EnvironmentObject private var subscriptionStore: SubscriptionStore
+
+  func signOut() {
+      Task {
+          do {
+              try await supabase.auth.signOut()
+              self.session = nil
+          } catch {
+              dump(error)
+          }
+      }
+  }
 
   var body: some View {
     VStack {
-        //if let user = Auth.user{
-      if let user = clerk.user {
-        TopNavbar()
+      if session != nil {
+        TopNavbar(signOut: signOut)
       } else {
         SignUpOrSignInView()
       }
     }
     .onAppear {
         Task {
-            await subscriptionStore.syncWithDatabase()
+            for await state in await supabase.auth.authStateChanges {
+                if [.initialSession, .signedIn, .signedOut].contains(state.event) {
+                    self.session = state.session
+                }
+            }
         }
     }
   }
