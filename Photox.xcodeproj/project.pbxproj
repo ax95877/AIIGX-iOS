@@ -16,6 +16,8 @@
 		040E07EC2E35822700D45B05 /* StripePaymentSheet in Frameworks */ = {isa = PBXBuildFile; productRef = 040E07EB2E35822700D45B05 /* StripePaymentSheet */; };
 		040E07EE2E35822700D45B05 /* StripePaymentsUI in Frameworks */ = {isa = PBXBuildFile; productRef = 040E07ED2E35822700D45B05 /* StripePaymentsUI */; };
 		0447C3BE2E3418F100B58EC8 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 0447C3BD2E3418F100B58EC8 /* Supabase */; };
+		048BA6202E3A8A15000867C6 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 048BA61F2E3A8A15000867C6 /* GoogleSignIn */; };
+		048BA6222E3A8A20000867C6 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 048BA6212E3A8A20000867C6 /* GoogleSignInSwift */; };
 		04F29B292E34114100C5642F /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 04F29B282E34114100C5642F /* Auth */; };
 		04F29B2B2E34114100C5642F /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = 04F29B2A2E34114100C5642F /* Functions */; };
 		04F29B2D2E34114100C5642F /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 04F29B2C2E34114100C5642F /* PostgREST */; };
@@ -43,8 +45,10 @@
 				0447C3BE2E3418F100B58EC8 /* Supabase in Frameworks */,
 				040E07E82E35821A00D45B05 /* StripeFinancialConnections in Frameworks */,
 				04F29B312E34114100C5642F /* Storage in Frameworks */,
+				048BA6222E3A8A20000867C6 /* GoogleSignInSwift in Frameworks */,
 				040E07EE2E35822700D45B05 /* StripePaymentsUI in Frameworks */,
 				040E07E62E35821A00D45B05 /* StripeConnect in Frameworks */,
+				048BA6202E3A8A15000867C6 /* GoogleSignIn in Frameworks */,
 				040E07EC2E35822700D45B05 /* StripePaymentSheet in Frameworks */,
 				04F29B2D2E34114100C5642F /* PostgREST in Frameworks */,
 				040E07E22E35821A00D45B05 /* StripeApplePay in Frameworks */,
@@ -118,6 +122,8 @@
 				040E07E92E35822700D45B05 /* StripePayments */,
 				040E07EB2E35822700D45B05 /* StripePaymentSheet */,
 				040E07ED2E35822700D45B05 /* StripePaymentsUI */,
+				048BA61F2E3A8A15000867C6 /* GoogleSignIn */,
+				048BA6212E3A8A20000867C6 /* GoogleSignInSwift */,
 			);
 			productName = ClerkiOS;
 			productReference = 04D44EF32E0848A20085F127 /* Photox.app */;
@@ -150,6 +156,7 @@
 			packageReferences = (
 				04F29B272E34114100C5642F /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				040E07DE2E35821A00D45B05 /* XCRemoteSwiftPackageReference "stripe-ios-spm" */,
+				0429B3B42E34114100C5642F /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 04D44EF42E0848A20085F127 /* Products */;
@@ -306,6 +313,9 @@
 				DEVELOPMENT_TEAM = 233WA8LL5N;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_CFBundleURLTypes = "(\n\t\t\t\t\t{\n\t\t\t\t\t\tCFBundleURLSchemes = \t\t\t(\n\t\t\t\t\t\t\t\"com.googleusercontent.apps.1076302701013-7iatio5j0o4hl5en8johnpu1bjls720q\",\n\t\t\t\t\t\t);\n\t\t\t\t\t},\n\t\t\t\t)";
+				INFOPLIST_KEY_GIDClientID = "1076302701013-7iatio5j0o4hl5en8johnpu1bjls720q.apps.googleusercontent.com";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -343,6 +353,7 @@
 				DEVELOPMENT_TEAM = 233WA8LL5N;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -402,6 +413,14 @@
 				version = 24.7.0;
 			};
 		};
+		0429B3B42E34114100C5642F /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.0;
+			};
+		};
 		04F29B272E34114100C5642F /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/supabase/supabase-swift";
@@ -457,6 +476,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 04F29B272E34114100C5642F /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Supabase;
+		};
+		048BA61F2E3A8A15000867C6 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0429B3B42E34114100C5642F /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		048BA6212E3A8A20000867C6 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0429B3B42E34114100C5642F /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
 		};
 		04F29B282E34114100C5642F /* Auth */ = {
 			isa = XCSwiftPackageProductDependency;

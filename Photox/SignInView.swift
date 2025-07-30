@@ -211,51 +211,69 @@ struct SignInView: View {
     // MARK: - Social Media Button View
     private var socialMediaButtonView: some View {
         VStack(spacing: 16) {
-                    // Apple/Social Media Accounts Button
-//                    Button(action: {
-//                        // Handle Apple signin
-//                        Task { await submitWithApple() }
-//                    }) {
-//                        HStack(spacing: 12) {
-//                            Image(systemName: "applelogo")
-//                                .font(.system(size: 16))
-//                                .foregroundColor(.white)
-//
-//                            Text("Sign in with Apple")
-//                                .font(.system(size: 16))
-//                                .foregroundColor(.white)
-//                        }
-//                        .frame(maxWidth: .infinity)
-//                        .frame(height: 56)
-//                        .background(
-//                            RoundedRectangle(cornerRadius: 12)
-//                                .fill(Color.gray.opacity(0.4))
-//                        )
-//                    }
+            // Apple/Social Media Accounts Button
+            Button(action: {
+                // Handle Apple signin
+                Task { await signInWithApple() }
+            }) {
+                HStack(spacing: 12) {
+                    Image(systemName: "applelogo")
+                        .font(.system(size: 16))
+                        .foregroundColor(.white)
                     
-                    // Google Sign In Button
-//                    Button(action: {
-//                        // Handle Google sign in
-//                        Task { await submitWithGoogle() }
-//                    }) {
-//                        HStack(spacing: 12) {
-//                            // Google logo placeholder using SF Symbol
-//                            Image(systemName: "globe")
-//                                .font(.system(size: 16))
-//                                .foregroundColor(.white)
-//
-//                            Text("Sign in with Google")
-//                                .font(.system(size: 16))
-//                                .foregroundColor(.white)
-//                        }
-//                        .frame(maxWidth: .infinity)
-//                        .frame(height: 56)
-//                        .background(
-//                            RoundedRectangle(cornerRadius: 12)
-//                                .fill(Color.gray.opacity(0.4))
-//                        )
-//                    }
+                    Text("Sign in with Apple")
+                        .font(.system(size: 16))
+                        .foregroundColor(.white)
                 }
+                .frame(maxWidth: .infinity)
+                .frame(height: 56)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.gray.opacity(0.4))
+                )
+            }
+            
+            // Google Sign In Button
+            Button(action: {
+                // Handle Google sign in
+                Task { await signInWithGoogle() }
+            }) {
+                HStack(spacing: 12) {
+                    // Google logo placeholder using SF Symbol
+                    Image(systemName: "globe")
+                        .font(.system(size: 16))
+                        .foregroundColor(.white)
+                    
+                    Text("Sign in with Google")
+                        .font(.system(size: 16))
+                        .foregroundColor(.white)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 56)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.gray.opacity(0.4))
+                )
+            }
+        }
+    }
+    
+    func signInWithApple() async {
+        do {
+            let (idToken, nonce) = try await appleSignIn()
+            try await supabase.auth.signInWithIdToken(credentials:  OpenIDConnectCredentials(provider: .apple, idToken: idToken, nonce: nonce))
+        } catch {
+            dump(error)
+        }
+    }
+    
+    func signInWithGoogle() async {
+        do {
+            let idToken = try await googleSignIn()
+            try await supabase.auth.signInWithIdToken(credentials:  OpenIDConnectCredentials(provider: .google, idToken: idToken,nonce: nil))
+        } catch {
+            dump(error)
+        }
     }
     
     // MARK: - Footer View

@@ -8,6 +8,7 @@
 import SwiftUI
 import Supabase
 import Stripe
+import GoogleSignIn
 
 @main
 struct ClerkiOSApp: App {
@@ -23,7 +24,7 @@ struct ClerkiOSApp: App {
           .onOpenURL { url in
               let stripeHandled = StripeAPI.handleURLCallback(with: url)
               if !stripeHandled {
-                  //clerk.handleRedirect(for: url)
+                  GIDSignIn.sharedInstance.handle(url)
               }
           }
         }
